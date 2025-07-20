@@ -9,11 +9,9 @@ Created on Sat Dec  7 11:38:08 2024
 import scipy.fft as scifft 
 import numpy as np
 import matplotlib.pyplot as plt
-import pygame
 import os
 import librosa
 import time
-
 
 y, sr = librosa.load(librosa.example('trumpet'))
 
@@ -25,7 +23,6 @@ print(t)
 print(tempo)
 
 #DFT
-
 
 start = time.time()
 def DFT(x):
