@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-#Differential equation solutions using Euler methods using matrix solve
+#Differential equation solutions using Euler methods for matrix implementation
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -32,9 +30,10 @@ def Euler_backward(v0,x0,A,t,dt):
     u[1, 0] = v0  
     I = np.eye(2)
     B = (I - A*dt)
+    Bamp = np.linalg.inv(I - A*dt)  
     for i in range(0, len(t) - 1):
        u[:,i+1] = np.linalg.solve((I - A*dt),u[:,i])
-    return u,B
+    return u,B,Bamp
 
 def Trapezoidal(v0,x0,A,t,dt):
     u = np.zeros((2, len(t))) 
@@ -42,19 +41,20 @@ def Trapezoidal(v0,x0,A,t,dt):
     u[1, 0] = v0  
     I = np.eye(2)
     C = (I +dt/2*A)@(I -dt/2*A)
+    Camp = np.linalg.inv(I - dt/2*A) @ (I + dt/2*A) 
     for i in range(0, len(t) - 1):
         derecho = (I+ dt/2*A) @ u[:,i]
         izquierdo = (I - dt/2*A)
         u[:,i+1] = np.linalg.solve(izquierdo,derecho)
-    return u,C
+    return u,C,Camp
 
 def Exacta(v0,x0,A,t,dt):
     Omega = np.sqrt(omega**2-(alpha/2)**2)
     return np.exp(-alpha*t/2)*(x0*np.cos(Omega*t)+(v0+alpha*x0/2)*np.sin(Omega*t)/Omega)
 
 u1,A1 = Euler_forward(v0,x0,A,t,dt)
-u2,B = Euler_backward(v0,x0,A,t,dt)
-u3,C = Trapezoidal(v0,x0,A,t,dt)
+u2,B = Euler_backward(v0,x0,A,t,dt)[0:2]
+u3,C = Trapezoidal(v0,x0,A,t,dt)[0:2]
 exacta = Exacta(v0,x0,A,t,dt)
 
 #error of methods
@@ -87,17 +87,16 @@ erroresEb = np.zeros(len(tiempoerror))
 erroresT = np.zeros(len(tiempoerror)) 
 for i in range(len(tiempoerror)):
     u1,A1 = Euler_forward(v0,x0,A,t,tiempoerror[i])
-    u2,B = Euler_backward(v0,x0,A,t,tiempoerror[i])
-    u3,C = Trapezoidal(v0,x0,A,t,tiempoerror[i])
+    Bamp = Euler_backward(v0,x0,A,t,tiempoerror[i])[2]
+    Camp = Trapezoidal(v0,x0,A,t,tiempoerror[i])[2]
     exacta = Exacta(v0,x0,A,t,tiempoerror[i])
     errorEf = np.abs(u1[0,:]-exacta)
     errorEb = np.abs(u2[0,:]-exacta)
     errorT = np.abs(u3[0,:]-exacta)
     erroresEf[i] = max(np.abs(np.linalg.eigvals(A1)))
-    erroresEb[i] = max(np.abs(np.linalg.eigvals(B)))
-    erroresT[i] = max(np.abs(np.linalg.eigvals(C)))
-    
-    
+    erroresEb[i] = max(np.abs(np.linalg.eigvals(Bamp)))
+    erroresT[i] = max(np.abs(np.linalg.eigvals(Camp)))
+
 plt.plot(tiempoerror,erroresEf, label = 'Estabilidad Euler forward')
 plt.plot(tiempoerror,erroresEb, label = 'Estabilidad Euler backward')
 plt.plot(tiempoerror,erroresT, label = 'Estabilidad Crank-Nicholson')
@@ -106,4 +105,4 @@ plt.xlabel('Paso de tiempo t(s)')
 plt.ylabel('Valor de $| \lambda | (s)^(-1) $ ')
 plt.legend()
 plt.show()
-print('Como se puede observar, tanto Euler backward como Crank-Nicholson son más estables con pasos de tiempo mayores, mientras que Euler forward diverge rápidamente con pasos mayores de tiempo')
+#print('Como se puede observar, tanto Euler backward como Crank-Nicholson son más estables con pasos de tiempo mayores, mientras que Euler forward diverge rápidamente con pasos mayores de tiempo')
