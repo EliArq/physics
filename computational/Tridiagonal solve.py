@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-
+# -*- coding: utf-8 -*
 #Tridiagonal matrix using Thomas Algorithm
 import numpy as np
 import time
