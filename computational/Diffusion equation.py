@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Sat Oct  5 12:44:21 2024
 
-@author: Usr
-"""
 #Diffusion equation 1D using matrix
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,8 +11,9 @@ x = np.linspace(-1,1,100)
 y = np.linspace(-1,1,100)
 D = 0.01
 dx = (x[1]-x[0])
-dt = 1e-5
+dt = 0.001
 T = 100*np.exp(-20*x**2)
+T_desp = np.copy(T)
 estabilidad = dx**2/(2*D)
 
 def Ecuaciondifusion(T,D,x,dx,dt):
@@ -24,15 +21,13 @@ def Ecuaciondifusion(T,D,x,dx,dt):
     u = np.ones(len(x)-1)
     A = sparse.diags([d,u,u], [0,-1,1], shape = (len(x),len(x))).toarray()
     alpha = D*dt/dx**2
-    I =sparse.eye(len(x))
+    I =sparse.eye(len(x)).toarray()
     M = I + alpha*A
     M[0,:] = 0
     M[-1,:] = 0
     M[:,0] = 0
     M[:,-1] = 0
-    derivadas = np.zeros(len(x))
-    for i in range(0,len(x)):
-        derivadas[i] = M[i]@T
+    derivadas = M@T
     return derivadas
 
 sol = Ecuaciondifusion(T,D,x,dx,dt)
@@ -42,10 +37,9 @@ ax.set_title('Ecuación difusión 1D FTCS')
 ax.set_xlabel('x (m)')
 ax.set_ylabel('T')
 def animate(i):
-    global sol, dt
-    sol = Ecuaciondifusion(T,D,x,dx,dt)
-    line.set_ydata(sol)  
-    dt += 1e-5
+    global T_desp
+    T_desp = Ecuaciondifusion(T_desp,D,x,dx,dt)
+    line.set_ydata(T_desp)  
     return line,
 
 
@@ -59,9 +53,8 @@ plt.show()
 
 D = 0.1
 dx = (x[1]-x[0])
-dt = 0.001
 T = 100*np.exp(-20*x**2)
-
+T_desp = np.copy(T)
 def Trapezoidal(T,D,x,dx,dt):
     alpha = D*dt/dx**2
     d = 1-2*alpha*np.ones(len(x))
@@ -74,15 +67,11 @@ def Trapezoidal(T,D,x,dx,dt):
     B[-1,-2] = -1
     B[-1,-1] = 1
 
-    s = np.zeros(len(x))
-    for i in range(0,len(x)):
-        
-        s[i] = A[i]@T
-  
+    s =A@T
     s[0] = 0
     s[-1] = -2*dx
-    u = np.linalg.solve(B,s)
-    return u
+    u_1 = np.linalg.solve(B,s)
+    return u_1
 sol2 = Trapezoidal(T,D,x,dx,dt)
 
 fig, ax = plt.subplots()
@@ -94,11 +83,9 @@ ax.set_ylabel('T')
 
 
 def animate(t):
-    global sol2, dt
-    sol2 = Trapezoidal(T,D,x,dx,dt)
-    line.set_ydata(sol2)  
-    dt += 0.001
-
+    global T_desp
+    T_desp = Trapezoidal(T_desp,D,x,dx,dt)
+    line.set_ydata(T_desp)  
     return line,
 
 ani = FuncAnimation(
@@ -111,11 +98,11 @@ plt.show()
 
 D = 0.1
 dx = x[1]-x[0]
-dt = 0.001
 x = np.linspace(-1, 1,50)
 y = np.linspace(-1, 1,50)
 X, Y = np.meshgrid(x, y)
 T = 100 * np.exp(-20 * (X**2 + Y**2))
+T_desp = np.copy(T)
 
 alpha = D*dt/dx**2
 def CrankNicholson2D(alpha,T):
@@ -165,13 +152,12 @@ ax.set_title('Animación 2D cambiando valores de t = 0.001s')
 ax.set_xlabel('x (m)')
 ax.set_ylabel('T')
 def update(frame):
-    global T, rbuena, dt
-    sol = CrankNicholson2D(alpha,T)
+    global T_desp, rbuena
+    sol = CrankNicholson2D(alpha,T_desp)
     rbuena = np.reshape(np.ravel(sol),(len(x),len(x)))
-    T = np.reshape(sol, (len(x), len(x)))
+    T_desp = np.reshape(sol, (len(x), len(x)))
     ax.clear()
     cax = ax.contourf(X, Y, rbuena, 20, cmap='inferno')
-    
     return cax, 
 
 anim = FuncAnimation(fig, update, frames=100, blit=False)

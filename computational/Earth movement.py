@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Spyder Editor
 
-This is a temporary script file.
-"""
 #Equation solves for Earth dynamic movement
 import numpy as np
 import matplotlib.pyplot as plt
@@ -221,6 +217,6 @@ plt.xlabel('t (s)')
 plt.ylabel('E (J)')
 plt.legend(loc = 'best')
 plt.show()
-print('Respecto a la energía, también se observa una diferencia respecto a los otros métodos, pues, como \n'
+"""print('Respecto a la energía, también se observa una diferencia respecto a los otros métodos, pues, como \n'
       'ya se representaba en la órbita, la energía no se mantiene constante, de hecho, decrece según pasa el tiempo,\n'
-      ' la Tierra caería en el campo gravitatorio del Sol y sería absorbida por él.')
+      ' la Tierra caería en el campo gravitatorio del Sol y sería absorbida por él.')"""

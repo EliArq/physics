@@ -1,16 +1,10 @@
-# -*- coding: utf-8 -*-
-"""
-Spyder Editor
-
-This is a temporary script file.
-"""
 
 #Crystal system construction: cubic, fcc, bcc and diamond
 #L = 1
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-import os
+
 
 tipo = input('Tipo de red(bcc,fcc,cubic,diamond): ')
 coordx = int(input('Longitud de la caja de simulación en x (en parámetros de red) = '))
@@ -30,7 +24,7 @@ if tipo == 'cubic':
             for i in range(0,coordx):
                 matrizcoord[i,j,k,:] = a*np.array([i,j,k])
                 pos += 1
-                file.write('f {pos},{matrizcoord[i,j,k]} \n')
+                file.write(f'{pos},{matrizcoord[i,j,k]} \n')
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
 
