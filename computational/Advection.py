@@ -1,54 +1,43 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Oct 14 19:38:17 2024
 
-@author: Usr
-"""
-#Centered differences for advection equation and burguers equation
+#Centered differences for advection equation and burgers equation
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
 x = np.linspace(0,5,100)
 c = 2
-u = np.zeros(len(x))
+u = np.zeros(100)
 dx = x[1] -x[0]
-dt = 0.01
 nt = 1000
+dt = 0.01
 
 for j in range(0,len(x)-1):
     if 1 <= x[j] <= 2:
         u[j] = 1
         
 def DiferenciasCentradas(c,u,dx,dt):
-    dt = 0.0005
     factor = (c*dt)/(2*dx)
     u_2 = np.copy(u)
-    for j in range(1,len(x)-1):
+    for j in range(1,len(u)-1):
         u_2[j] = u[j] - factor*(u[j+1]-u[j-1])
     u_2[0] = u[0]-factor*(u[1]-u[-2])
     u_2[-1] = u_2[0]     
-       
     return u_2
 
-
-
 def Downwind(c,u,dx,dt):
-    dt = 0.0005
     factor = (c*dt)/dx
     u_3 = np.copy(u)
-    for j in range(1,len(x)-1):
+    for j in range(1,len(u)-1):
         u_3[j] = u[j] - factor*(u[j+1]-u[j])
     u_3[0] = u[0] - factor*(u[1]-u[0])
     u_3[-1] = u_3[0]
     
     return u_3
 
-
 def Upwind(c,u,dx,dt):
     factor = (c*dt)/dx
     u_4 = np.copy(u)
-    for j in range(1,len(x)):
+    for j in range(1,len(u)):
         u_4[j] = u[j] - factor*(u[j]-u[j-1])
     
     u_4[0] = u_4[-1]
@@ -85,55 +74,49 @@ plt.tight_layout()
 plt.show()
 plt.close()
 
-x = np.linspace(0,1,100)
-dx = x[1]-x[0]
+x1 = np.linspace(0,1,100)
+dx1 = x1[1]-x1[0]
 
-dt = 0.002
+dt1 = 0.002
 nt = 10000
-u= 2 + 0.5*np.sin(2*np.pi*x)
+u1= 2 + 0.5*np.sin(2*np.pi*x1)
 #if dt < (dx/np.max(u)):
  #   print('cumple condicion')
     
-def BurgersUpwind(dx,dt,u):
-    u_5 = np.copy(u)
-    for i in range(1,len(x)):
-        u_5[i] = u[i] - (0.5*(u[i]**2)-0.5*(u[i-1]**2))*dt/dx
-    
-    u_5[0] = u_5[-1]
-    u_5[-1] = u_5[0]        
+def BurgersUpwind(dx1,dt1,u1):
+    u_5 = np.copy(u1)
+    for i in range(1,len(u1)):
+        u_5[i] = u1[i] - (0.5*(u1[i]**2)-0.5*(u1[i-1]**2))*dt1/dx1
+    u_5[0] = u_5[-1]      
     return u_5
 
 
-x = np.linspace(0,1,100)
-u= 2 + 0.5*np.sin(2*np.pi*x)
-dt = 0.001
-def BurgersCentradas(dx,dt,u):
-    u_3 = np.copy(u)
-    for j in range(1,len(x)-1):
-        u_3[j] = u_3[j] - u[j]*(u[j+1]-u[j-1])*dt/(2*dx)
+def BurgersCentradas(dx1,dt1,u1):
+    u_3 = np.copy(u1)
+    for j in range(1,len(u1)-1):
+        u_3[j] = u_3[j] - u1[j]*(u1[j+1]-u1[j-1])*dt1/(2*dx1)
     u_3[-1] = u_3[0]
-    u_3[0] = u_3[-1]
         
     return u_3
 
-u_centradas, u_upwind = np.copy(u), np.copy(u)
+u_centradas_bur, u_upwind_bur = np.copy(u1), np.copy(u1)
 
 fig, axs = plt.subplots(2,1,figsize = (8,10))
 titles = ['Burgers Diferencias centradas','Burgers Upwind']
 lines = []
 for ax,title in zip(axs,titles):
-    line, = ax.plot(x, u)
+    line, = ax.plot(x1, u1)
     ax.set_title(title)
     ax.set_xlabel('x (m)')
     ax.set_ylabel('u(x,t)')
     lines.append(line)
 
 def animate(t):
-    global u_centradas, u_downwind, u_upwind
-    u_centradas = BurgersCentradas(dx,dt,u_centradas)
-    u_upwind = BurgersUpwind(dx,dt,u_upwind)
-    lines[0].set_ydata(u_centradas)
-    lines[1].set_ydata(u_upwind)
+    global u_centradas_bur, u_upwind_bur
+    u_centradas_bur = BurgersCentradas(dx1,dt1,u_centradas_bur)
+    u_upwind_bur = BurgersUpwind(dx1,dt1,u_upwind_bur)
+    lines[0].set_ydata(u_centradas_bur)
+    lines[1].set_ydata(u_upwind_bur)
 
     return lines
 ani = FuncAnimation(
@@ -143,31 +126,16 @@ plt.tight_layout()
 plt.show()
 plt.close()
 
-x = np.linspace(0,1,100)
-dx = x[1]-x[0]
-
-dt = 0.002
-
 t = np.linspace(0,1,100)
-u= 2 + 0.5*np.sin(2*np.pi*x)
-def BurgersUpwind(dx,dt,u):
-    u_5 = np.copy(u)
-    for i in range(1,len(x)):
-        u_5[i] = u[i] - (0.5*(u[i]**2)-0.5*(u[i-1]**2))*dt/dx
-    
-    u_5[0] = u_5[-1]
-    u_5[-1] = u_5[0]        
-    return u_5
 
-
-def Energia(u):
-    E = 0.5*sum(u**2)*dx
+def Energia(u1):
+    E = 0.5*sum(u1**2)*dx1
     return E
 
 E = np.zeros(len(t))
 for i in range(len(t)):
-    u = BurgersUpwind(dx,dt,u)
-    E[i] = Energia(u)
+    u1 = BurgersUpwind(dx1,dt1,u1)
+    E[i] = Energia(u1)
 
 
 plt.plot(t,E)
